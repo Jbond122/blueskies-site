@@ -134,7 +134,7 @@
   .why-points .wp p{color:rgba(255,255,255,.72);font-size:.98rem}
 
   /* ---- contact ---- */
-  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+  .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:start}
   .contact-card{background:var(--cloud);border:1px solid var(--line);border-radius:var(--r);padding:36px 34px}
   .contact-card .row{display:flex;flex-direction:column;gap:4px;padding:16px 0;border-bottom:1px solid var(--line)}
   .contact-card .row:last-child{border-bottom:0;padding-bottom:0}
@@ -142,6 +142,26 @@
     text-transform:uppercase;color:var(--steel)}
   .contact-card .v{font-size:1.1rem;font-weight:500}
   .contact-card .v a:hover{color:var(--sky)}
+  .contact-meta{margin-top:22px;font-size:.95rem;color:var(--steel);line-height:1.8}
+  .contact-meta a{color:var(--sky);font-weight:500}
+  .contact-card form{display:flex;flex-direction:column;gap:16px}
+  .field{display:flex;flex-direction:column;gap:7px}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .contact-card label{font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--steel)}
+  .contact-card label .opt{text-transform:none;letter-spacing:0;color:#8b9bad}
+  .contact-card input,.contact-card textarea{font-family:inherit;font-size:1rem;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%;
+    transition:border-color .15s ease,box-shadow .15s ease}
+  .contact-card textarea{resize:vertical;min-height:110px}
+  .contact-card input:focus,.contact-card textarea:focus{outline:none;border-color:var(--sky);
+    box-shadow:0 0 0 3px rgba(36,120,185,.15)}
+  .cf-submit{margin-top:4px;justify-content:center;width:100%}
+  .cf-submit[disabled]{opacity:.6;cursor:default}
+  .hp{position:absolute!important;left:-9999px!important}
+  .form-status{font-size:.95rem;margin:2px 0 0;min-height:1.2em}
+  .form-status.ok{color:#1a7f4b}
+  .form-status.err{color:#c0392b}
 
   /* ---- footer ---- */
   footer{background:#071425;color:#9fb0c2;padding:50px 0 36px}
@@ -176,6 +196,7 @@
     .nav-cta{margin-top:12px}
     .nav-toggle{display:block}
     .clouds,.caps,.why-grid,.contact-grid{grid-template-columns:1fr}
+    .field-row{grid-template-columns:1fr}
     .why-grid{gap:36px}
   }
 </style>
@@ -317,24 +338,42 @@
     <div class="reveal">
       <span class="eyebrow">// Start a conversation</span>
       <h2>Tell us what's not working.</h2>
-      <p class="lead">Whether you're starting from scratch or untangling something that's been limping along, the first conversation is free and straight. Reach out and we'll get back to you.</p>
-      <div class="hero-cta" style="margin-top:32px">
-        <a href="mailto:hello@blueskiestechgroup.com" class="btn btn-primary">Email us</a>
-      </div>
+      <p class="lead">Whether you're starting from scratch or untangling something that's been limping along, the first conversation is free and straight. Fill out the form and we'll get back to you.</p>
+      <p class="contact-meta">Based in Michigan · serving customers across the state</p>
     </div>
     <div class="contact-card reveal">
-      <div class="row">
-        <span class="k">Email</span>
-        <span class="v"><a href="mailto:hello@blueskiestechgroup.com">hello@blueskiestechgroup.com</a></span>
-      </div>
-      <div class="row">
-        <span class="k">Phone</span>
-        <span class="v"><a href="tel:+10000000000">(555) 000-0000</a></span>
-      </div>
-      <div class="row">
-        <span class="k">Based in</span>
-        <span class="v">Michigan · serving customers across the state</span>
-      </div>
+      <form id="contactForm" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="281e10f9-1d53-43a8-9d3b-d36bb45b94d6">
+        <input type="hidden" name="subject" value="New inquiry from blueskiestechgroup.com">
+        <input type="hidden" name="from_name" value="Blue Skies Technology Group website">
+        <!-- honeypot: bots fill this in, real visitors never see it -->
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="field">
+          <label for="cf-name">Name</label>
+          <input id="cf-name" type="text" name="name" required autocomplete="name">
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="cf-email">Email</label>
+            <input id="cf-email" type="email" name="email" required autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="cf-phone">Phone <span class="opt">(optional)</span></label>
+            <input id="cf-phone" type="tel" name="phone" autocomplete="tel">
+          </div>
+        </div>
+        <div class="field">
+          <label for="cf-company">Company <span class="opt">(optional)</span></label>
+          <input id="cf-company" type="text" name="company" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label for="cf-message">How can we help?</label>
+          <textarea id="cf-message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary cf-submit">Send message</button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+      </form>
     </div>
   </div>
 </section>
@@ -376,6 +415,34 @@
     document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
   } else {
     document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+  var cForm = document.getElementById('contactForm');
+  if (cForm) {
+    var statusEl = document.getElementById('formStatus');
+    cForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var btn = cForm.querySelector('.cf-submit');
+      statusEl.className = 'form-status';
+      statusEl.textContent = 'Sending…';
+      btn.disabled = true;
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(cForm)
+      }).then(function(r){ return r.json(); }).then(function(j){
+        if (j.success) {
+          cForm.reset();
+          statusEl.className = 'form-status ok';
+          statusEl.textContent = "Thanks — your message is on its way. We'll be in touch shortly.";
+        } else {
+          statusEl.className = 'form-status err';
+          statusEl.textContent = (j.message || 'Something went wrong.') + ' You can also email us directly.';
+        }
+      }).catch(function(){
+        statusEl.className = 'form-status err';
+        statusEl.textContent = 'Network error — please email us directly.';
+      }).finally(function(){ btn.disabled = false; });
+    });
   }
 </script>
 </body>
